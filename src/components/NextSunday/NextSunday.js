@@ -1,7 +1,8 @@
 import React from 'react';
+import { Title } from '../sundayStyle';
 
 const nextSunday = props => {
-  return <p>Następna niedziela jest {props.nextSundayText}</p>;
+  return <Title>Następna niedziela jest {props.nextSundayText}</Title>;
 };
 
 export default nextSunday;

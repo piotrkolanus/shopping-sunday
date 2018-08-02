@@ -1,16 +1,17 @@
-import * as date from '../assets/shopping-sundays-2018.json';
-import React, { Component } from 'react';
-import './App.css';
+import PrevSunday from '../components/PrevSunday/PrevSunday';
 import NextSunday from '../components/NextSunday/NextSunday';
-import PreviousSunday from '../components/PreviousSunday/PreviousSunday';
+import React, { Component } from 'react';
+import { Wrapper, Center } from './containerStyle';
+import * as date from '../assets/shopping-sundays-2018.json';
 const moment = require('moment');
+
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
       todayDay: moment().isoWeekday(),
       nextSundayText: 'niehandlowa',
-      previousSundayText: 'niehandlowa',
+      prevSundayText: 'niehandlowa',
     };
   }
 
@@ -19,7 +20,7 @@ class App extends Component {
     todayDate: '',
     shoppingSundayList: [],
     nextSundayText: '',
-    previousSundayText: '',
+    prevSundayText: '',
   };
 
   getDateList = () => {
@@ -69,12 +70,14 @@ class App extends Component {
     return prevSundayDate;
   };
 
-  setShoppingState = willBeShoppingSunday => {
-    const ss = willBeShoppingSunday;
-    if (ss) {
-      this.setState({ nextSundayText: 'handlowa' });
-    }
+  setShoppingState = (willBeShoping, wasShopping) => {
+    const checkNextShopping = willBeShoping;
+    checkNextShopping ? this.setState({ nextSundayText: 'handlowa' }) : null;
+
+    const checkPrevShopping = wasShopping;
+    checkPrevShopping ? this.setState({ prevSundayText: 'handlowa' }) : null;
   };
+
   init = today => {
     this.getDate();
     const willbeShoppingSunday = this.isDateOnList(
@@ -83,8 +86,10 @@ class App extends Component {
     const wasShoppingSunday = this.isDateOnList(
       this.setPreviousSundayDate(today)
     );
-    this.setShoppingState(willbeShoppingSunday);
+
+    this.setShoppingState(willbeShoppingSunday, wasShoppingSunday);
   };
+
   componentDidMount() {
     this.init(this.state.todayDay);
   }
@@ -94,17 +99,15 @@ class App extends Component {
   }
 
   render() {
-    console.log('hello');
-
-    // console.log(this.state);
-    // const currentDateString = moment().date();
-    // console.log(currentDateString);
+    const { nextSundayText, prevSundayText } = this.state;
 
     return (
-      <div>
-        <NextSunday nextSundayText={this.state.nextSundayText} />
-        <PreviousSunday previousSundayText={this.state.previousSundayText} />
-      </div>
+      <Center>
+        <Wrapper>
+          <NextSunday nextSundayText={nextSundayText} />
+          <PrevSunday prevSundayText={prevSundayText} />
+        </Wrapper>
+      </Center>
     );
   }
 }
