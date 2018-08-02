@@ -3,7 +3,8 @@ import NextSunday from '../components/NextSunday/NextSunday';
 import React, { Component } from 'react';
 import { Wrapper, Center } from './containerStyle';
 import * as date from '../assets/shopping-sundays-2018.json';
-const moment = require('moment');
+// const moment = require('moment');
+import * as moment from 'moment';
 
 class App extends Component {
   constructor(props) {
