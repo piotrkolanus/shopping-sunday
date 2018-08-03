@@ -1,20 +1,19 @@
 import styled from 'styled-components';
 
 const Wrapper = styled.div`
-  //   display: flex;
-  //   flex-direction: column;
-  //   align-content: center;
-`;
-
-const Center = styled.div`
-  //   flex-direction: column;
-  //   align-items: center;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
+`;
 
-  height: 100%;
-  width: 100%;
+const Center = styled.div`
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  justify-content: center;
+  align-items: center;
+  background-color: lightblue;
 `;
 
 export { Center, Wrapper };

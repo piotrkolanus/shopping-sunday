@@ -7,21 +7,12 @@ import * as date from '../assets/shopping-sundays-2018.json';
 import * as moment from 'moment';
 
 class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      todayDay: moment().isoWeekday(),
-      nextSundayText: 'niehandlowa',
-      prevSundayText: 'niehandlowa',
-    };
-  }
-
   state = {
-    todayDay: '',
+    todayDay: moment().isoWeekday(),
     todayDate: '',
     shoppingSundayList: [],
-    nextSundayText: '',
-    prevSundayText: '',
+    nextSundayText: 'niehandlowa',
+    prevSundayText: 'niehandlowa',
   };
 
   getDateList = () => {
@@ -51,11 +42,6 @@ class App extends Component {
     return difference;
   };
 
-  // getDaysToPreviousSunday = today => {
-  //   const toPrevious = today;
-  //   return toPrevious;
-  // };
-
   setNextSundayDate = toNextSunday => {
     const nextSundayDate = moment()
       .add(toNextSunday, 'days')
@@ -63,7 +49,7 @@ class App extends Component {
     return nextSundayDate;
   };
 
-  setPreviousSundayDate = toPreviousSunday => {
+  setPrevSundayDate = toPreviousSunday => {
     const prevSundayDate = moment()
       .subtract(toPreviousSunday, 'days')
       .format('YYYY-MM-DD');
@@ -81,14 +67,15 @@ class App extends Component {
 
   init = today => {
     this.getDate();
-    const willbeShoppingSunday = this.isDateOnList(
-      this.setNextSundayDate(this.getDaysToNextSunday(today))
-    );
-    const wasShoppingSunday = this.isDateOnList(
-      this.setPreviousSundayDate(today)
-    );
 
-    this.setShoppingState(willbeShoppingSunday, wasShoppingSunday);
+    const daysToNextSunday = this.getDaysToNextSunday(today);
+    const nextSundayDate = this.setNextSundayDate(daysToNextSunday);
+    const isNextDateOnList = this.isDateOnList(nextSundayDate);
+
+    const prevSundayDate = this.setPrevSundayDate(today);
+    const isPrevDateOnList = this.isDateOnList(prevSundayDate);
+
+    this.setShoppingState(isNextDateOnList, isPrevDateOnList);
   };
 
   componentDidMount() {
