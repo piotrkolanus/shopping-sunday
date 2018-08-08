@@ -1,28 +1,16 @@
-// import PrevSunday from '../components/PrevSunday/PrevSunday';
-// import NextSunday from '../components/NextSunday/NextSunday';
 import Sunday from '../components/Sunday/Sunday';
 import React, { Component } from 'react';
 import { Wrapper, Center } from './containerStyle';
 import * as date from '../assets/shopping-sundays-2018.json';
-// const moment = require('moment');
 import * as moment from 'moment';
 
 class App extends Component {
-  // state = {
-  //   todayDay: moment().isoWeekday(),
-  //   todayDate: '',
-  //   shoppingSundayList: [],
-  //   nextSundayText: 'niehandlowa',
-  //   todaySundayText: 'niehandlowa',
-  //   prevSundayText: 'niehandlowa',
-  // };
+  componentWillMount() {
+    this.getDateList();
+  }
 
   componentDidMount() {
     this.init(this.state.todayDay);
-  }
-
-  componentWillMount() {
-    this.getDateList();
   }
 
   state = {
@@ -30,9 +18,9 @@ class App extends Component {
     todayDate: '',
     shoppingSundayList: [],
     sundays: [
-      { placementInTime: 'Poprzednia', toBe: 'była', text: '' },
-      { placementInTime: 'Dziś', toBe: 'jest', text: '' },
-      { placementInTime: 'Następna', toBe: 'będzie', text: '' },
+      { toBe: 'Była', text: '' },
+      { toBe: 'Będzie', text: '' },
+      { toBe: 'Jest', text: '' },
     ],
   };
 
@@ -53,7 +41,6 @@ class App extends Component {
   };
 
   isSundayCheck = today => {
-    //dać tu ten parametr this.todayDay
     const checkDay = today;
     let isSunday;
     checkDay === 7 ? (isSunday = true) : (isSunday = false);
@@ -79,8 +66,8 @@ class App extends Component {
         .format('YYYY-MM-DD');
       return nextSundayDate;
     };
-    //if today is sunday, add one week to check the next sunday
     const skipTodaySunday = toNextSunday + 7;
+
     toNextSunday === 0 ? setSunday(skipTodaySunday) : setSunday(toNextSunday);
   };
 
@@ -91,37 +78,21 @@ class App extends Component {
     return prevSundayDate;
   };
 
-  setShoppingState = (wasShopping, isShopping, willBeShoping) => {
+  setShoppingState = (wasShopping, willBeShopping, isShopping) => {
     const sundaysArr = [...this.state.sundays];
-    console.log('fetched from state: ' + JSON.stringify(sundaysArr));
 
-    const prevNowNext = [wasShopping, isShopping, willBeShoping];
-    console.log(prevNowNext);
+    const prevNowNext = [wasShopping, willBeShopping, isShopping];
+
     const updatedSundays = sundaysArr.map((el, index) => {
-      // console.log('beautiful map: ' + JSON.stringify(sunday));
-      // console.log(JSON.stringify(sunday.text));
       prevNowNext[index] ? (el.text = 'handlowa') : (el.text = 'niehandlowa');
-
       return { ...el, text: el.text };
     });
 
-    console.log('updated sundays: ' + JSON.stringify(updatedSundays));
     this.setState({ sundays: updatedSundays });
-
-    // const checkNextShopping = willBeShoping;
-    // checkNextShopping ? this.setState({ nextSundayText: 'handlowa' }) : null;
-
-    // const checkPrevShopping = wasShopping;
-    // checkPrevShopping ? this.setState({ prevSundayText: 'handlowa' }) : null;
-
-    // const checkTodayShopping = isShopping;
-    // checkTodayShopping ? this.setState({ todaySundayText: 'handlowa' }) : null;
   };
 
   init = today => {
     const isSunday = this.isSundayCheck();
-    // const getTodayDate = this.getDate();
-    // const isTodayOnList = this.isDateOnList();
 
     if (isSunday) {
       const getTodayDate = this.getDate();
@@ -134,7 +105,7 @@ class App extends Component {
       const prevSundayDate = this.setPrevSundayDate(today);
       const isPrevDateOnList = this.isDateOnList(prevSundayDate);
 
-      this.setShoppingState(isNextDateOnList, isPrevDateOnList, isTodayOnList);
+      this.setShoppingState(isPrevDateOnList, isNextDateOnList, isTodayOnList);
     } else {
       const daysToNextSunday = this.getDaysToNextSunday(today);
       const nextSundayDate = this.setNextSundayDate(daysToNextSunday);
@@ -144,33 +115,26 @@ class App extends Component {
       const isPrevDateOnList = this.isDateOnList(prevSundayDate);
       this.setShoppingState(isPrevDateOnList, isNextDateOnList);
     }
-    // jeżeli jest niedziela to wtedy getDate musi być sprawdzone czy jest na liście
-    // i ustawiony state todaySunday na handlowa
   };
 
   render() {
-    // const { placementInTime, toBe, text } = this.state.sundays;
-    // console.log(placementInTime);
-    let sundays;
+    const { sundays, todayDay } = this.state;
 
-    sundays = (
+    const showSundays = (
       <div>
-        {this.state.sundays.map((sunday, index) => {
-          return (
-            <Sunday
-              placement={sunday.placementInTime}
-              verb={sunday.toBe}
-              text={sunday.text}
-              key={index}
-            />
-          );
+        {sundays.map((sunday, index) => {
+          if (index === 2 && !(todayDay === 7)) {
+            null;
+          } else {
+            return <Sunday verb={sunday.toBe} text={sunday.text} key={index} />;
+          }
         })}
       </div>
     );
 
     return (
       <Center>
-        <Wrapper>{sundays}</Wrapper>
+        <Wrapper>{showSundays}</Wrapper>
       </Center>
     );
   }

@@ -4,7 +4,7 @@ import { Title } from '../sundayStyle';
 const Sunday = props => {
   return (
     <Title>
-      {props.placement} niedziela {props.verb} {props.text}
+      {props.verb} niedziela {props.text}
     </Title>
   );
 };
