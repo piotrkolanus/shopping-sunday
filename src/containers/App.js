@@ -12,18 +12,13 @@ class App extends Component {
     todayDate: '',
     shoppingSundayList: [],
     nextSundayText: 'niehandlowa',
+    todaySundayText: 'niehandlowa',
     prevSundayText: 'niehandlowa',
   };
 
   getDateList = () => {
     const importedDate = date.shoppingSundays;
     this.setState({ shoppingSundayList: importedDate });
-  };
-
-  isDateOnList = fromSetter => {
-    const list = [...this.state.shoppingSundayList];
-    const check = list.includes(fromSetter);
-    return check;
   };
 
   getDate = () => {
@@ -33,7 +28,22 @@ class App extends Component {
       .slice(0, 1)
       .toString();
     this.setState({ todayDate: currentDateString });
+    console.log(currentDateString);
     return currentDateString;
+  };
+
+  isSundayCheck = today => {
+    //dać tu ten parametr this.todayDay
+    const checkDay = today;
+    let isSunday;
+    checkDay === 7 ? (isSunday = true) : (isSunday = false);
+    return isSunday;
+  };
+
+  isDateOnList = fromSetter => {
+    const list = [...this.state.shoppingSundayList];
+    const check = list.includes(fromSetter);
+    return check;
   };
 
   getDaysToNextSunday = today => {
@@ -43,39 +53,63 @@ class App extends Component {
   };
 
   setNextSundayDate = toNextSunday => {
-    const nextSundayDate = moment()
-      .add(toNextSunday, 'days')
-      .format('YYYY-MM-DD');
-    return nextSundayDate;
+    const setSunday = function(days) {
+      const nextSundayDate = moment()
+        .add(days, 'days')
+        .format('YYYY-MM-DD');
+      return nextSundayDate;
+    };
+    //if today is sunday, add one week to check the next sunday
+    const skipTodaySunday = toNextSunday + 7;
+    toNextSunday === 0 ? setSunday(skipTodaySunday) : setSunday(toNextSunday);
   };
 
   setPrevSundayDate = toPreviousSunday => {
     const prevSundayDate = moment()
       .subtract(toPreviousSunday, 'days')
       .format('YYYY-MM-DD');
-    console.log(prevSundayDate);
     return prevSundayDate;
   };
 
-  setShoppingState = (willBeShoping, wasShopping) => {
+  setShoppingState = (willBeShoping, wasShopping, isShopping) => {
     const checkNextShopping = willBeShoping;
     checkNextShopping ? this.setState({ nextSundayText: 'handlowa' }) : null;
 
     const checkPrevShopping = wasShopping;
     checkPrevShopping ? this.setState({ prevSundayText: 'handlowa' }) : null;
+
+    const checkTodayShopping = isShopping;
+    checkTodayShopping ? this.setState({ todaySundayText: 'handlowa' }) : null;
   };
 
   init = today => {
-    this.getDate();
+    const isSunday = this.isSundayCheck();
+    // const getTodayDate = this.getDate();
+    // const isTodayOnList = this.isDateOnList();
 
-    const daysToNextSunday = this.getDaysToNextSunday(today);
-    const nextSundayDate = this.setNextSundayDate(daysToNextSunday);
-    const isNextDateOnList = this.isDateOnList(nextSundayDate);
+    if (isSunday) {
+      const getTodayDate = this.getDate();
+      const isTodayOnList = this.isDateOnList(getTodayDate);
 
-    const prevSundayDate = this.setPrevSundayDate(today);
-    const isPrevDateOnList = this.isDateOnList(prevSundayDate);
+      const daysToNextSunday = this.getDaysToNextSunday(today);
+      const nextSundayDate = this.setNextSundayDate(daysToNextSunday);
+      const isNextDateOnList = this.isDateOnList(nextSundayDate);
 
-    this.setShoppingState(isNextDateOnList, isPrevDateOnList);
+      const prevSundayDate = this.setPrevSundayDate(today);
+      const isPrevDateOnList = this.isDateOnList(prevSundayDate);
+
+      this.setShoppingState(isNextDateOnList, isPrevDateOnList, isTodayOnList);
+    } else {
+      const daysToNextSunday = this.getDaysToNextSunday(today);
+      const nextSundayDate = this.setNextSundayDate(daysToNextSunday);
+      const isNextDateOnList = this.isDateOnList(nextSundayDate);
+
+      const prevSundayDate = this.setPrevSundayDate(today);
+      const isPrevDateOnList = this.isDateOnList(prevSundayDate);
+      this.setShoppingState(isNextDateOnList, isPrevDateOnList);
+    }
+    // jeżeli jest niedziela to wtedy getDate musi być sprawdzone czy jest na liście
+    // i ustawiony state todaySunday na handlowa
   };
 
   componentDidMount() {
@@ -87,13 +121,16 @@ class App extends Component {
   }
 
   render() {
-    const { nextSundayText, prevSundayText } = this.state;
+    const { nextSundayText, prevSundayText, todaySundayText } = this.state;
 
     return (
       <Center>
         <Wrapper>
-          <NextSunday nextSundayText={nextSundayText} />
-          <PrevSunday prevSundayText={prevSundayText} />
+          <NextSunday
+            nextSunday={nextSundayText}
+            todaySunday={todaySundayText}
+          />
+          <PrevSunday prevSunday={prevSundayText} />
         </Wrapper>
       </Center>
     );
