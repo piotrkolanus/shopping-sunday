@@ -1,5 +1,6 @@
-import PrevSunday from '../components/PrevSunday/PrevSunday';
-import NextSunday from '../components/NextSunday/NextSunday';
+// import PrevSunday from '../components/PrevSunday/PrevSunday';
+// import NextSunday from '../components/NextSunday/NextSunday';
+import Sunday from '../components/Sunday/Sunday';
 import React, { Component } from 'react';
 import { Wrapper, Center } from './containerStyle';
 import * as date from '../assets/shopping-sundays-2018.json';
@@ -7,13 +8,32 @@ import * as date from '../assets/shopping-sundays-2018.json';
 import * as moment from 'moment';
 
 class App extends Component {
+  // state = {
+  //   todayDay: moment().isoWeekday(),
+  //   todayDate: '',
+  //   shoppingSundayList: [],
+  //   nextSundayText: 'niehandlowa',
+  //   todaySundayText: 'niehandlowa',
+  //   prevSundayText: 'niehandlowa',
+  // };
+
+  componentDidMount() {
+    this.init(this.state.todayDay);
+  }
+
+  componentWillMount() {
+    this.getDateList();
+  }
+
   state = {
     todayDay: moment().isoWeekday(),
     todayDate: '',
     shoppingSundayList: [],
-    nextSundayText: 'niehandlowa',
-    todaySundayText: 'niehandlowa',
-    prevSundayText: 'niehandlowa',
+    sundays: [
+      { placementInTime: 'Poprzednia', toBe: 'była', text: '' },
+      { placementInTime: 'Dziś', toBe: 'jest', text: '' },
+      { placementInTime: 'Następna', toBe: 'będzie', text: '' },
+    ],
   };
 
   getDateList = () => {
@@ -71,15 +91,31 @@ class App extends Component {
     return prevSundayDate;
   };
 
-  setShoppingState = (willBeShoping, wasShopping, isShopping) => {
-    const checkNextShopping = willBeShoping;
-    checkNextShopping ? this.setState({ nextSundayText: 'handlowa' }) : null;
+  setShoppingState = (wasShopping, isShopping, willBeShoping) => {
+    const sundaysArr = [...this.state.sundays];
+    console.log('fetched from state: ' + JSON.stringify(sundaysArr));
 
-    const checkPrevShopping = wasShopping;
-    checkPrevShopping ? this.setState({ prevSundayText: 'handlowa' }) : null;
+    const prevNowNext = [wasShopping, isShopping, willBeShoping];
+    console.log(prevNowNext);
+    const updatedSundays = sundaysArr.map((el, index) => {
+      // console.log('beautiful map: ' + JSON.stringify(sunday));
+      // console.log(JSON.stringify(sunday.text));
+      prevNowNext[index] ? (el.text = 'handlowa') : (el.text = 'niehandlowa');
 
-    const checkTodayShopping = isShopping;
-    checkTodayShopping ? this.setState({ todaySundayText: 'handlowa' }) : null;
+      return { ...el, text: el.text };
+    });
+
+    console.log('updated sundays: ' + JSON.stringify(updatedSundays));
+    this.setState({ sundays: updatedSundays });
+
+    // const checkNextShopping = willBeShoping;
+    // checkNextShopping ? this.setState({ nextSundayText: 'handlowa' }) : null;
+
+    // const checkPrevShopping = wasShopping;
+    // checkPrevShopping ? this.setState({ prevSundayText: 'handlowa' }) : null;
+
+    // const checkTodayShopping = isShopping;
+    // checkTodayShopping ? this.setState({ todaySundayText: 'handlowa' }) : null;
   };
 
   init = today => {
@@ -106,32 +142,35 @@ class App extends Component {
 
       const prevSundayDate = this.setPrevSundayDate(today);
       const isPrevDateOnList = this.isDateOnList(prevSundayDate);
-      this.setShoppingState(isNextDateOnList, isPrevDateOnList);
+      this.setShoppingState(isPrevDateOnList, isNextDateOnList);
     }
     // jeżeli jest niedziela to wtedy getDate musi być sprawdzone czy jest na liście
     // i ustawiony state todaySunday na handlowa
   };
 
-  componentDidMount() {
-    this.init(this.state.todayDay);
-  }
-
-  componentWillMount() {
-    this.getDateList();
-  }
-
   render() {
-    const { nextSundayText, prevSundayText, todaySundayText } = this.state;
+    // const { placementInTime, toBe, text } = this.state.sundays;
+    // console.log(placementInTime);
+    let sundays;
+
+    sundays = (
+      <div>
+        {this.state.sundays.map((sunday, index) => {
+          return (
+            <Sunday
+              placement={sunday.placementInTime}
+              verb={sunday.toBe}
+              text={sunday.text}
+              key={index}
+            />
+          );
+        })}
+      </div>
+    );
 
     return (
       <Center>
-        <Wrapper>
-          <NextSunday
-            nextSunday={nextSundayText}
-            todaySunday={todaySundayText}
-          />
-          <PrevSunday prevSunday={prevSundayText} />
-        </Wrapper>
+        <Wrapper>{sundays}</Wrapper>
       </Center>
     );
   }
